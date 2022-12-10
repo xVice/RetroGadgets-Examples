@@ -2,3 +2,5 @@
 
 <li>Runner.lua | A nearly finished runner game with a debug display/cheating tool using the magnetic connector</li>
 <li>FlashMemory.lua | A small demo of how to use the flash memory chip</li>
+
+If this was helpfull for you dont forget to give this repository a star!
