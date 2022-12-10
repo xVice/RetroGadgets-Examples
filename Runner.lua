@@ -10,11 +10,12 @@ local score = 1
 local scoreMultiplier = 1
 local godMode = false
 local playerYPos = 0
-local jumpSpeed = 100
+local jumpSpeed = 125
 local gravity = -9
 local targetYPos = 0 
 local interpolationFactor = 0.1
 local highscores = {}
+local isCrouching = false
 
 local Render:VideoChip = gdt.VideoChip0
 local ScoreDisplay:LcdDisplay = gdt.Lcd0
@@ -61,6 +62,7 @@ function MainGameLoop()
     if(AButton.ButtonState == true and playerYPos == 0)then
         targetYPos = targetYPos - jumpSpeed
     end
+    isCrouching = BButton.ButtonState
     if playerYPos < 0 then
         targetYPos = targetYPos - gravity
     end
@@ -80,7 +82,11 @@ end
 function DrawObstacles()
     if obstaclePos == 0 then GenerateNewObstacleList() end
     for i, obstacle in ipairs(currentObstacle) do
-        Render:DrawText(vec2(obstaclePos + i * 100 + screenWidth - 100, screenHeight - 20), spriteFont, obstacle, color.black, color.white)
+        if obstacle == "Box" then Render:FillRect(vec2(obstaclePos + i * 100 + screenWidth - 100, screenHeight - 10), vec2(obstaclePos + i * 100 + screenWidth - 100 - 15, screenHeight - 20),color.red)
+        elseif obstacle == "DoubleBox" then Render:FillRect(vec2(obstaclePos + i * 100 + screenWidth - 100, screenHeight - 10), vec2(obstaclePos + i * 100 + screenWidth - 100 - 30, screenHeight - 20),color.red)
+        elseif obstacle == "Bird" then Render:FillRect(vec2(obstaclePos + i * 100 + screenWidth - 100, screenHeight - 30), vec2(obstaclePos + i * 100 + screenWidth - 100 - 15, screenHeight - 40),color.gray)
+        elseif obstacle == "DoubleBird" then Render:FillRect(vec2(obstaclePos + i * 100 + screenWidth - 100, screenHeight - 30), vec2(obstaclePos + i * 100 + screenWidth - 100 - 30, screenHeight - 40),color.gray)
+        end
     end
     if obstaclePos >= -screenWidth - 2050 then
         obstaclePos = obstaclePos - 3
@@ -98,7 +104,8 @@ function GenerateNewObstacleList()
 end
 
 function DrawPlayer(y:number)
-    Render:FillRect(vec2(5, y + 97), vec2(15, y +82), color.magenta)
+    if(isCrouching) then Render:FillRect(vec2(5, y + 97), vec2(15, y +82), color.magenta) return end
+    Render:FillRect(vec2(5, y + 97), vec2(15, y +70), color.magenta)
 end
 
 function DrawClouds(x:number)
@@ -130,6 +137,7 @@ function DrawDebugInfo()
         DebugDisplay:DrawText(vec2(5, 45), spriteFont, "Score: " ..tostring(score), color.white, color.black)
         DebugDisplay:DrawText(vec2(5, 55), spriteFont, "ScoreMultiplier: " ..tostring(scoreMultiplier), color.white, color.black)
         DebugDisplay:DrawText(vec2(5, 65), spriteFont, "GodMode: " ..tostring(godMode), color.white, color.black)
+        DebugDisplay:DrawText(vec2(5, 75), spriteFont, "Crouching: " ..tostring(isCrouching), color.white, color.black)
     else
         DebugDisplay:Clear(color.black)
     end
